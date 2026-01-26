@@ -1,0 +1,28 @@
+{
+    "name": "@prescription-ai/web",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "dotenv -e ../../.env -- next dev -p ${NEXT_PUBLIC_WEB_PORT:-3000}",
+        "build": "next build",
+        "start": "dotenv -e ../../.env -- next start -p ${NEXT_PUBLIC_WEB_PORT:-3000}",
+        "lint": "next lint",
+        "typecheck": "tsc --noEmit",
+        "clean": "rm -rf .next .turbo node_modules"
+    },
+    "dependencies": {
+        "next": "^15.1.6",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "@prescription-ai/utils": "*"
+    },
+    "devDependencies": {
+        "@prescription-ai/eslint-config": "*",
+        "@prescription-ai/typescript-config": "*",
+        "@types/node": "^22",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "typescript": "^5.7.2",
+        "eslint": "^9.17.0"
+    }
+}

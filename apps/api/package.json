@@ -1,0 +1,31 @@
+{
+    "name": "@prescription-ai/api",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "main": ".dist/index.js",
+    "scripts": {
+        "dev": "dotenv -e ../../.env -- tsup --watch --onSuccess 'node .dist/index.js'",
+        "build": "tsup",
+        "start": "dotenv -e ../../.env -- node .dist/index.js",
+        "lint": "eslint .",
+        "typecheck": "tsc --noEmit",
+        "clean": "rm -rf .dist .turbo node_modules"
+    },
+    "dependencies": {
+        "express": "^4.21.2",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "@prescription-ai/utils": "*"
+    },
+    "devDependencies": {
+        "@prescription-ai/eslint-config": "*",
+        "@prescription-ai/typescript-config": "*",
+        "@types/express": "^5.0.0",
+        "@types/cors": "^2.8.17",
+        "@types/node": "^22",
+        "typescript": "^5.7.2",
+        "tsup": "^8.3.5",
+        "eslint": "^9.17.0"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "extends": "@prescription-ai/typescript-config/node-library.json",
+    "compilerOptions": {
+        "rootDir": "./src",
+        "outDir": "./.dist",
+        "module": "ESNext",
+        "moduleResolution": "bundler"
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        ".dist"
+    ]
+}

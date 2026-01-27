@@ -1,5 +1,5 @@
 {
-  "extends": "@prescription-ai/typescript-config/next.json",
+  "extends": "../../packages/typescript-config/next.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

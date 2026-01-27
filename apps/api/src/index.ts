@@ -1,13 +1,39 @@
 import express from 'express';
+// Trigger nodemon restart
 import cors from 'cors';
-import { formatDate } from '@prescription-ai/utils';
+import { formatDate } from '@my-scope/utils';
+import { connectToDatabase } from '@my-scope/db';
 
 const app = express();
-const PORT = process.env.API_PORT || 5000;
+const PORT = process.env.API_PORT || 5001;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    console.warn('⚠️ MONGODB_URI is not defined in environment variables');
+}
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Start server
+const start = async () => {
+    try {
+        if (MONGODB_URI) {
+            await connectToDatabase(MONGODB_URI);
+        }
+
+        app.listen(PORT, () => {
+            console.log(`🚀 API server running on http://localhost:${PORT}`);
+            console.log(`📅 Server started at: ${formatDate(new Date())}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+start();
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
@@ -52,8 +78,3 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
     });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 API server running on http://localhost:${PORT}`);
-    console.log(`📅 Server started at: ${formatDate(new Date())}`);
-});

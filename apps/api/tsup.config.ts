@@ -10,5 +10,5 @@ export default defineConfig({
     outDir: '.dist',
     target: 'node18',
     // Only bundle in production (not dev) to avoid resolution issues
-    external: process.env.NODE_ENV === 'production' ? [] : ['@prescription-ai/utils'],
+    external: process.env.NODE_ENV === 'production' ? [] : ['@my-scope/utils'],
 });

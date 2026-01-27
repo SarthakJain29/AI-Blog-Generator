@@ -1,3 +1,3 @@
-import nextConfig from '@prescription-ai/eslint-config/next.js';
+import nextConfig from '@my-scope/eslint-config/next.js';
 
 export default [...nextConfig];

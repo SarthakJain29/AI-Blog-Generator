@@ -1,18 +1,18 @@
-# Prescription AI Monorepo
+# My Monorepo
 
 A Turbo + Bun monorepo with a Next.js frontend and an Express.js Dockerized API backend.
 
 ## Apps
 
-- `apps/web`: Next.js frontend (default port `3000`)
-- `apps/api`: Node/Express API service (default port `5000`, Docker-ready)
+- `@my-scope/web`: Next.js frontend (default port `3000`)
+- `@my-scope/api`: Node/Express API service (default port `5000`, Docker-ready)
 
 ## Packages
 
-- `packages/eslint-config`: shared ESLint flat config
-- `packages/typescript-config`: shared TS configs
-- `packages/utils`: shared utility library
-
+- `packages/eslint-config`: shared ESLint flat config (`@my-scope/eslint-config`)
+- `packages/typescript-config`: shared TS configs (`@my-scope/typescript-config`)
+- `packages/utils`: shared utility library (`@my-scope/utils`)
+- `packages/db`: shared database models (`@my-scope/db`)
 ## Requirements
 
 - Node.js `>= 18`
@@ -53,13 +53,13 @@ This runs all `dev` scripts via Turbo. By default:
 Frontend only:
 
 ```bash
-bun run dev --filter=@prescription-ai/web
+bun run dev --filter=@my-scope/web
 ```
 
 Backend only:
 
 ```bash
-bun run dev --filter=@prescription-ai/api
+bun run dev --filter=@my-scope/api
 ```
 
 ## Build and Start
@@ -73,8 +73,8 @@ bun run build
 Start a single app:
 
 ```bash
-bun run start --filter=@prescription-ai/web
-bun run start --filter=@prescription-ai/api
+bun run start --filter=@my-scope/web
+bun run start --filter=@my-scope/api
 ```
 
 ## Lint and Typecheck
@@ -151,7 +151,7 @@ The `turbo.json` defines task dependencies and caching:
 1. Create the workspace in `apps/*` or `packages/*`
 2. Add `package.json` with the standard scripts
 3. Reference shared configs: `@prescription-ai/typescript-config` and `@prescription-ai/eslint-config`
-4. Use workspace dependencies with `"@prescription-ai/*": "*"`
+4. Use workspace dependencies with `"@my-scope/*": "*"`
 
 ## License
 

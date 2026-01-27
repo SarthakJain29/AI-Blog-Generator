@@ -1,9 +1,20 @@
 import type { Metadata } from 'next';
+import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 
+const outfit = Outfit({
+    subsets: ['latin'],
+    variable: '--font-outfit',
+});
+
+const inter = Inter({
+    subsets: ['latin'],
+    variable: '--font-inter',
+});
+
 export const metadata: Metadata = {
-    title: 'Prescription AI',
-    description: 'AI-powered prescription management system',
+    title: 'AI Blog Generator | Create Content Effortlessly',
+    description: 'A minimal, production-grade AI-powered blog generator with premium aesthetics.',
 };
 
 export default function RootLayout({
@@ -12,8 +23,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body>{children}</body>
+        <html lang="en" className={`${outfit.variable} ${inter.variable} dark`}>
+            <body className="font-inter whitespace-pre-wrap">{children}</body>
         </html>
     );
 }

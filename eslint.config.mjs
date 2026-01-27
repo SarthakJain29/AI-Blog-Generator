@@ -1,3 +1,3 @@
-import baseConfig from '@prescription-ai/eslint-config/base.js';
+import baseConfig from '@my-scope/eslint-config/base.js';
 
 export default [...baseConfig];

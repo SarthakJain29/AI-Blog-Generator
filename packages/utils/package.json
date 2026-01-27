@@ -1,5 +1,5 @@
 {
-    "name": "@prescription-ai/utils",
+    "name": "@my-scope/utils",
     "version": "0.0.0",
     "private": true,
     "main": "./.dist/index.js",
@@ -20,8 +20,8 @@
         "clean": "rm -rf .dist .turbo"
     },
     "devDependencies": {
-        "@prescription-ai/eslint-config": "*",
-        "@prescription-ai/typescript-config": "*",
+        "@my-scope/eslint-config": "*",
+        "@my-scope/typescript-config": "*",
         "tsup": "^8.3.5",
         "typescript": "^5.7.2",
         "eslint": "^9.17.0",

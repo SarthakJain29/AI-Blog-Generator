@@ -1,5 +1,5 @@
 {
-    "extends": "@prescription-ai/typescript-config/node-library.json",
+    "extends": "../../packages/typescript-config/node-library.json",
     "compilerOptions": {
         "rootDir": "./src",
         "outDir": "./.dist",

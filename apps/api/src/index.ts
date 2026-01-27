@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { formatDate } from '@my-scope/utils';
-import { connectToDatabase, Chat } from '@my-scope/db';
+import { connectToDatabase, Chat, Message } from '@my-scope/db';
 import { authMiddleware } from './middleware/auth';
 
 const app = express();
@@ -45,7 +45,6 @@ const start = async () => {
 
         app.listen(PORT, () => {
             console.log(`API server running on http://localhost:${PORT}`);
-            console.log(`Server started at: ${formatDate(new Date())}`);
         });
     } catch (error) {
         console.error('Failed to start server:', error);
@@ -97,6 +96,60 @@ app.get('/api/chats', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Error fetching chats:', error);
         res.status(500).json({ error: 'Failed to fetch chats' });
+    }
+});
+
+// Message Routes
+app.get('/api/chats/:chatId/messages', authMiddleware, async (req, res) => {
+    try {
+        const user = (req as any).user;
+        const { chatId } = req.params;
+
+        // Verify chat ownership
+        const chat = await Chat.findOne({ _id: chatId, userId: user._id });
+        if (!chat) {
+            return res.status(404).json({ error: 'Chat not found or unauthorized' });
+        }
+
+        const messages = await Message.find({ chatId }).sort({ createdAt: 1 });
+        res.json(messages);
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+        res.status(500).json({ error: 'Failed to fetch messages' });
+    }
+});
+
+app.post('/api/chats/:chatId/messages', authMiddleware, async (req, res) => {
+    try {
+        const user = (req as any).user;
+        const { chatId } = req.params;
+        const { content } = req.body;
+
+        if (!content) {
+            return res.status(400).json({ error: 'Message content is required' });
+        }
+
+        // Verify chat ownership
+        const chat = await Chat.findOne({ _id: chatId, userId: user._id });
+        if (!chat) {
+            return res.status(404).json({ error: 'Chat not found or unauthorized' });
+        }
+
+        const message = await Message.create({
+            userId: user._id,
+            chatId,
+            role: 'user',
+            content,
+            blog: false
+        });
+
+        // Increment msgCount
+        await Chat.findByIdAndUpdate(chatId, { $inc: { msgCount: 1 } });
+
+        res.status(201).json(message);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        res.status(500).json({ error: 'Failed to send message' });
     }
 });
 

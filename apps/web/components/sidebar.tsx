@@ -1,5 +1,7 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
     PlusCircle,
@@ -12,22 +14,69 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/api";
+
+interface Chat {
+    _id: string;
+    title: string;
+    createdAt: string;
+}
 
 export function Sidebar() {
-    const { user, signInWithGoogle, logout } = useAuth();
+    const { user, signInWithGoogle, logout, token } = useAuth();
+    const router = useRouter();
+    const params = useParams();
+    const [chats, setChats] = useState<Chat[]>([]);
+    const [isCreating, setIsCreating] = useState(false);
 
-    const recentChats = [
-        { id: "1", title: "Modern AI in 2026" },
-        { id: "2", title: "Sustainable Tech Trends" },
-        { id: "3", title: "The Future of Web Dev" },
-        { id: "4", title: "Productivity Hacks" },
-    ];
+    useEffect(() => {
+        if (user && token) {
+            fetchChats();
+        } else {
+            setChats([]);
+        }
+    }, [user, token]);
+
+    const fetchChats = async () => {
+        try {
+            const response = await api.get("/api/chats");
+            setChats(response.data);
+        } catch (error) {
+            console.error("Failed to fetch chats:", error);
+        }
+    };
+
+    const handleCreateChat = async () => {
+        if (!user) {
+            signInWithGoogle();
+            return;
+        }
+
+        try {
+            setIsCreating(true);
+            const response = await api.post("/api/chats");
+            const newChat = response.data;
+            setChats([newChat, ...chats]);
+            router.push(`/chat/${newChat._id}`);
+        } catch (error) {
+            console.error("Failed to create chat:", error);
+        } finally {
+            setIsCreating(false);
+        }
+    };
+
+    const handleChatClick = (chatId: string) => {
+        router.push(`/chat/${chatId}`);
+    };
 
     return (
         <aside className="w-[280px] h-full glass border-r border-white/5 flex flex-col hidden md:flex">
             {/* Logo Section */}
             <div className="p-6 border-b border-white/5">
-                <div className="flex items-center gap-2">
+                <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => router.push("/")}
+                >
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                         <Sparkles className="w-5 h-5 text-white" />
                     </div>
@@ -43,9 +92,14 @@ export function Sidebar() {
                         Workspace
                     </h3>
                     <div className="space-y-1">
-                        <Button className="w-full justify-start gap-2 bg-white/5 hover:bg-white/10 border-white/10 text-white" variant="outline">
+                        <Button
+                            className="w-full justify-start gap-2 bg-white/5 hover:bg-white/10 border-white/10 text-white disabled:opacity-50"
+                            variant="outline"
+                            onClick={handleCreateChat}
+                            disabled={isCreating}
+                        >
                             <PlusCircle className="w-4 h-4 text-indigo-400" />
-                            New Blog Draft
+                            {isCreating ? "Creating..." : "New Blog Draft"}
                         </Button>
                     </div>
                 </div>
@@ -56,18 +110,27 @@ export function Sidebar() {
                         PAST DRAFTS
                     </h3>
                     <div className="space-y-1">
-                        {recentChats.map((chat) => (
-                            <button
-                                key={chat.id}
-                                className={cn(
-                                    "w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-3 group",
-                                    "hover:bg-white/5 text-white/70 hover:text-white"
-                                )}
-                            >
-                                <Clock className="w-3.5 h-3.5 text-white/30 group-hover:text-indigo-400 transition-colors" />
-                                <span className="truncate">{chat.title}</span>
-                            </button>
-                        ))}
+                        {chats.length > 0 ? (
+                            chats.map((chat) => (
+                                <button
+                                    key={chat._id}
+                                    onClick={() => handleChatClick(chat._id)}
+                                    className={cn(
+                                        "w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-3 group",
+                                        params?.chatId === chat._id
+                                            ? "bg-white/10 text-white"
+                                            : "hover:bg-white/5 text-white/70 hover:text-white"
+                                    )}
+                                >
+                                    <Clock className="w-3.5 h-3.5 text-white/30 group-hover:text-indigo-400 transition-colors" />
+                                    <span className="truncate">{chat.title}</span>
+                                </button>
+                            ))
+                        ) : (
+                            <div className="px-4 py-8 text-center">
+                                <p className="text-xs text-white/20 italic">No drafts yet.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

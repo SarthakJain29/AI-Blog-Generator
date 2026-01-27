@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { formatDate } from '@my-scope/utils';
-import { connectToDatabase } from '@my-scope/db';
+import { connectToDatabase, Chat } from '@my-scope/db';
 import { authMiddleware } from './middleware/auth';
 
 const app = express();
@@ -72,6 +72,32 @@ app.get('/api/users/sync', authMiddleware, (req, res) => {
         message: 'User synced successfully',
         user: (req as any).user,
     });
+});
+
+// Chat Routes
+app.post('/api/chats', authMiddleware, async (req, res) => {
+    try {
+        const user = (req as any).user;
+        const chat = await Chat.create({
+            userId: user._id,
+            title: 'New Blog Draft'
+        });
+        res.status(201).json(chat);
+    } catch (error) {
+        console.error('Error creating chat:', error);
+        res.status(500).json({ error: 'Failed to create chat' });
+    }
+});
+
+app.get('/api/chats', authMiddleware, async (req, res) => {
+    try {
+        const user = (req as any).user;
+        const chats = await Chat.find({ userId: user._id }).sort({ createdAt: -1 });
+        res.json(chats);
+    } catch (error) {
+        console.error('Error fetching chats:', error);
+        res.status(500).json({ error: 'Failed to fetch chats' });
+    }
 });
 
 app.get('/api/prescriptions', authMiddleware, (_req, res) => {

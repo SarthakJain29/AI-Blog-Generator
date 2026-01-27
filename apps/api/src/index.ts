@@ -1,15 +1,35 @@
 import express from 'express';
 // Trigger nodemon restart
 import cors from 'cors';
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { formatDate } from '@my-scope/utils';
 import { connectToDatabase } from '@my-scope/db';
+import { authMiddleware } from './middleware/auth';
 
 const app = express();
 const PORT = process.env.API_PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI;
 
+// Initialize Firebase Admin
+try {
+    const existingApps = getApps();
+    if (existingApps.length === 0) {
+        console.log('Initializing Firebase Admin...');
+        initializeApp({
+            credential: cert({
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+            }),
+        });
+        console.log('Firebase Admin initialized');
+    }
+} catch (error) {
+    console.error('Failed to initialize Firebase Admin:', error);
+}
+
 if (!MONGODB_URI) {
-    console.warn('⚠️ MONGODB_URI is not defined in environment variables');
+    console.warn('MONGODB_URI is not defined in environment variables');
 }
 
 // Middleware
@@ -24,8 +44,8 @@ const start = async () => {
         }
 
         app.listen(PORT, () => {
-            console.log(`🚀 API server running on http://localhost:${PORT}`);
-            console.log(`📅 Server started at: ${formatDate(new Date())}`);
+            console.log(`API server running on http://localhost:${PORT}`);
+            console.log(`Server started at: ${formatDate(new Date())}`);
         });
     } catch (error) {
         console.error('Failed to start server:', error);
@@ -46,18 +66,27 @@ app.get('/health', (_req, res) => {
     });
 });
 
-// API routes
-app.get('/api/prescriptions', (_req, res) => {
+// API routes (Protected)
+app.get('/api/users/sync', authMiddleware, (req, res) => {
     res.json({
-        message: 'Prescriptions endpoint',
-        data: [],
+        message: 'User synced successfully',
+        user: (req as any).user,
     });
 });
 
-app.post('/api/prescriptions', (req, res) => {
+app.get('/api/prescriptions', authMiddleware, (_req, res) => {
+    res.json({
+        message: 'Prescriptions endpoint',
+        data: [],
+        user: (_req as any).user,
+    });
+});
+
+app.post('/api/prescriptions', authMiddleware, (req, res) => {
     res.status(201).json({
         message: 'Prescription created',
         data: req.body,
+        user: (req as any).user,
     });
 });
 

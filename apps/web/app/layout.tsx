@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 
+import { AuthProvider } from "@/context/AuthContext";
+
 const outfit = Outfit({
     subsets: ['latin'],
     variable: '--font-outfit',
@@ -24,7 +26,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={`${outfit.variable} ${inter.variable} dark`}>
-            <body className="font-inter whitespace-pre-wrap">{children}</body>
+            <body className="font-inter whitespace-pre-wrap">
+                <AuthProvider>
+                    {children}
+                </AuthProvider>
+            </body>
         </html>
     );
 }

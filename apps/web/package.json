@@ -13,7 +13,9 @@
     "dependencies": {
         "@my-scope/utils": "*",
         "@radix-ui/react-slot": "^1.2.4",
+        "axios": "^1.13.3",
         "class-variance-authority": "^0.7.1",
+        "firebase": "^12.8.0",
         "next": "^15.1.6",
         "react": "^19.0.0",
         "react-dom": "^19.0.0"

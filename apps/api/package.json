@@ -13,11 +13,12 @@
         "clean": "rm -rf .dist .turbo node_modules"
     },
     "dependencies": {
-        "express": "^4.21.2",
+        "@my-scope/db": "*",
+        "@my-scope/utils": "*",
         "cors": "^2.8.5",
         "dotenv": "^16.4.7",
-        "@my-scope/utils": "*",
-        "@my-scope/db": "*"
+        "express": "^4.21.2",
+        "firebase-admin": "^13.6.0"
     },
     "devDependencies": {
         "@my-scope/eslint-config": "*",

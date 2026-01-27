@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Outfit } from 'next/font/google';
+import { Inter, Outfit, Playfair_Display } from 'next/font/google';
 import './globals.css';
 
 import { AuthProvider } from "@/context/AuthContext";
@@ -14,9 +14,14 @@ const inter = Inter({
     variable: '--font-inter',
 });
 
+const playfair = Playfair_Display({
+    subsets: ['latin'],
+    variable: '--font-playfair',
+});
+
 export const metadata: Metadata = {
-    title: 'AI Blog Generator | Create Content Effortlessly',
-    description: 'A minimal, production-grade AI-powered blog generator with premium aesthetics.',
+    title: 'ScribeAI | The AI Blog Builder',
+    description: 'Create engaging blog posts in seconds with AI.',
 };
 
 export default function RootLayout({
@@ -25,8 +30,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className={`${outfit.variable} ${inter.variable} dark`}>
-            <body className="font-inter whitespace-pre-wrap">
+        <html lang="en" className={`${outfit.variable} ${inter.variable} ${playfair.variable}`}>
+            <body className="font-sans antialiased text-slate-900 bg-white selection:bg-black selection:text-white">
                 <AuthProvider>
                     {children}
                 </AuthProvider>

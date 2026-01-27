@@ -5,12 +5,10 @@ import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
     PlusCircle,
-    History,
     LogOut,
     LogIn,
-    User as UserIcon,
     Sparkles,
-    Clock
+    MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -70,104 +68,91 @@ export function Sidebar() {
     };
 
     return (
-        <aside className="w-[280px] h-full glass border-r border-white/5 flex flex-col hidden md:flex">
+        <aside className="w-[280px] h-full bg-slate-50/50 border-r border-slate-200/60 backdrop-blur-xl flex flex-col hidden md:flex font-sans">
             {/* Logo Section */}
-            <div className="p-6 border-b border-white/5">
+            <div className="h-16 flex items-center px-6 border-b border-slate-100">
                 <div
-                    className="flex items-center gap-2 cursor-pointer"
+                    className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => router.push("/")}
                 >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                        <Sparkles className="w-5 h-5 text-white" />
+                    <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-md shadow-slate-900/10">
+                        <Sparkles className="w-4 h-4" />
                     </div>
-                    <span className="font-bold text-lg tracking-tight font-outfit text-white">ScribeAI</span>
+                    <span className="font-bold text-lg tracking-tight text-slate-900 font-serif">ScribeAI</span>
                 </div>
             </div>
 
-            {/* Main Navigation / Past Chat List */}
-            <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6 custom-scrollbar">
-                <div>
-                    <h3 className="px-4 text-xs font-semibold text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <PlusCircle className="w-3 h-3" />
-                        Workspace
-                    </h3>
-                    <div className="space-y-1">
-                        <Button
-                            className="w-full justify-start gap-2 bg-white/5 hover:bg-white/10 border-white/10 text-white disabled:opacity-50"
-                            variant="outline"
-                            onClick={handleCreateChat}
-                            disabled={isCreating}
+            {/* New Chat Button */}
+            <div className="p-4 pt-6">
+                <Button
+                    onClick={handleCreateChat}
+                    disabled={isCreating}
+                    className="w-full justify-start gap-2.5 bg-white hover:bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 shadow-sm hover:shadow transition-all h-10 px-4 rounded-xl"
+                    variant="ghost"
+                >
+                    <PlusCircle className="w-4 h-4 text-emerald-600" />
+                    <span className="font-medium text-sm">New Blog Post</span>
+                </Button>
+            </div>
+
+            {/* Chat List */}
+            <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2 custom-scrollbar">
+                <div className="px-3 pb-2 pt-2">
+                    <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Your Drafts</h3>
+                </div>
+                {chats.length > 0 ? (
+                    chats.map((chat) => (
+                        <button
+                            key={chat._id}
+                            onClick={() => handleChatClick(chat._id)}
+                            className={cn(
+                                "w-full text-left px-3.5 py-2.5 rounded-lg text-sm transition-all flex items-center gap-3 truncate group",
+                                params?.chatId === chat._id
+                                    ? "bg-white shadow-sm border border-slate-200 text-slate-900 font-medium"
+                                    : "hover:bg-slate-100/80 text-slate-600 hover:text-slate-900 border border-transparent"
+                            )}
                         >
-                            <PlusCircle className="w-4 h-4 text-indigo-400" />
-                            {isCreating ? "Creating..." : "New Blog Draft"}
-                        </Button>
+                            <MessageSquare className={cn("w-4 h-4 shrink-0 transition-colors", params?.chatId === chat._id ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-500")} />
+                            <span className="truncate">{chat.title || "Untitled Draft"}</span>
+                        </button>
+                    ))
+                ) : (
+                    <div className="px-3 py-8 text-center bg-slate-100/50 rounded-lg mx-3 border border-slate-100 border-dashed">
+                        <p className="text-xs text-slate-400 font-medium">No drafts yet</p>
                     </div>
-                </div>
-
-                <div>
-                    <h3 className="px-4 text-xs font-semibold text-white/40 uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <History className="w-3 h-3" />
-                        PAST DRAFTS
-                    </h3>
-                    <div className="space-y-1">
-                        {chats.length > 0 ? (
-                            chats.map((chat) => (
-                                <button
-                                    key={chat._id}
-                                    onClick={() => handleChatClick(chat._id)}
-                                    className={cn(
-                                        "w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-3 group",
-                                        params?.chatId === chat._id
-                                            ? "bg-white/10 text-white"
-                                            : "hover:bg-white/5 text-white/70 hover:text-white"
-                                    )}
-                                >
-                                    <Clock className="w-3.5 h-3.5 text-white/30 group-hover:text-indigo-400 transition-colors" />
-                                    <span className="truncate">{chat.title}</span>
-                                </button>
-                            ))
-                        ) : (
-                            <div className="px-4 py-8 text-center">
-                                <p className="text-xs text-white/20 italic">No drafts yet.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                )}
             </div>
 
-            {/* User Profile / Auth Section */}
-            <div className="p-4 border-t border-white/5 space-y-2">
+            {/* User Profile */}
+            <div className="p-4 border-t border-slate-200/60 bg-white/40">
                 {user ? (
-                    <>
-                        <div className="flex items-center gap-3 px-2 py-3">
+                    <div className="group">
+                        <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-white hover:shadow-sm hover:border hover:border-slate-100 transition-all">
                             {user.photoURL ? (
-                                <img src={user.photoURL} alt={user.displayName || "User"} className="w-8 h-8 rounded-full border border-white/10" />
+                                <img src={user.photoURL} alt={user.displayName || "User"} className="w-9 h-9 rounded-full border border-slate-200 shadow-sm" />
                             ) : (
-                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                                    <UserIcon className="w-4 h-4 text-white/50" />
+                                <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
+                                    <span className="text-sm font-semibold text-slate-600">
+                                        {user.displayName?.[0] || user.email?.[0] || "U"}
+                                    </span>
                                 </div>
                             )}
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-white truncate">{user.displayName}</p>
-                                <p className="text-[10px] text-white/40 truncate">{user.email}</p>
+                            <div className="flex-1 min-w-0 flex flex-col items-start">
+                                <span className="text-sm font-semibold text-slate-900 truncate">{user.displayName}</span>
+                                <button onClick={logout} className="text-xs text-slate-500 hover:text-rose-600 text-left transition-colors flex items-center gap-1 mt-0.5">
+                                    Sign out
+                                </button>
                             </div>
                         </div>
-                        <Button
-                            variant="outline"
-                            className="w-full justify-start text-white/50 hover:text-red-400 hover:bg-red-400/10 border-white/5 hover:border-red-400/30"
-                            onClick={logout}
-                        >
-                            <LogOut className="w-4 h-4 mr-2" />
-                            Sign Out
-                        </Button>
-                    </>
+                    </div>
                 ) : (
                     <Button
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white border-none"
+                        className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-md shadow-slate-900/20"
+                        size="sm"
                         onClick={signInWithGoogle}
                     >
-                        <LogIn className="w-4 h-4 mr-2" />
-                        Sign in with Google
+                        <LogIn className="w-3.5 h-3.5 mr-2" />
+                        Sign in
                     </Button>
                 )}
             </div>

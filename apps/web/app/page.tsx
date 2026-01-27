@@ -1,13 +1,23 @@
-import { Sidebar } from "@/components/sidebar";
-import { ChatArea } from "@/components/chat-area";
+import { Navbar } from "@/components/landing-page/navbar";
+import { Hero } from "@/components/landing-page/hero";
+import { Features } from "@/components/landing-page/features";
+import { HowItWorks } from "@/components/landing-page/how-it-works";
+import { Testimonials } from "@/components/landing-page/testimonials";
+import { FAQ } from "@/components/landing-page/faq";
+import { Footer } from "@/components/landing-page/footer";
 
 export default function Home() {
     return (
-        <div className="flex h-screen w-full bg-background overflow-hidden text-foreground">
-            <Sidebar />
-            <main className="flex-1 flex flex-col min-w-0">
-                <ChatArea />
+        <div className="flex flex-col min-h-screen bg-white">
+            <Navbar />
+            <main className="flex-1">
+                <Hero />
+                <Features />
+                <HowItWorks />
+                <Testimonials />
+                <FAQ />
             </main>
+            <Footer />
         </div>
     );
 }

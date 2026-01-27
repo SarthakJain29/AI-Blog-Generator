@@ -3,17 +3,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Send, Sparkles, User, Terminal, Copy, Check, Loader2 } from "lucide-react";
+import { Send, Sparkles, User, Copy, Check, Loader2, ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-
 
 type Message = {
     role: "user" | "assistant";
     content: string;
 }
-
 
 export function ChatArea() {
     const { user, token, loading: authLoading } = useAuth();
@@ -38,25 +36,25 @@ export function ChatArea() {
     useEffect(() => {
         const fetchMessages = async () => {
             if (!chatId) {
-                setMessages([{ role: "assistant", content: "Hello! I'm your AI Blog Generator. What topic should we write about today?" }]);
+                setMessages([]);
                 return;
             }
 
             // Wait until auth is not loading and we have a token (or we know we're not logged in)
             if (authLoading) return;
             if (!token) {
-                setMessages([{ role: "assistant", content: "Please sign in to view your messages." }]);
+                // If not logged in, we might want to redirect or show a different state, 
+                // but for now keeping empty to show the "What shall we write today?" UI 
+                // or we could show a specific "Sign in" message if desired.
+                // For this request, we just want to avoid the "Loaded draft" message overriding the UI.
+                setMessages([]);
                 return;
             }
 
             try {
                 setIsLoading(true);
                 const response = await api.get(`/api/chats/${chatId}/messages`);
-                if (response.data.length === 0) {
-                    setMessages([{ role: "assistant", content: "I've loaded your draft. What would you like to add or change?" }]);
-                } else {
-                    setMessages(response.data);
-                }
+                setMessages(response.data);
             } catch (error) {
                 console.error("Failed to fetch messages:", error);
             } finally {
@@ -105,91 +103,131 @@ export function ChatArea() {
     };
 
     return (
-        <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-[#0a0a0c]">
+        <div className="flex-1 flex flex-col h-full bg-white relative">
             {/* Header */}
-            <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 glass z-10">
-                <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <h2 className="text-sm font-medium text-white/80 tracking-tight">
-                        {chatId ? "Editing Draft" : "New Writing Session"}
-                    </h2>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="text-white/40 hover:text-white" onClick={copyToClipboard}>
-                        {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                    </Button>
+            <div className="h-16 border-b border-slate-100 flex items-center justify-between px-8 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${messages.length > 0 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                    <h1 className="text-sm font-medium text-slate-900 tracking-tight">
+                        {messages.length > 0 ? "Smart Draft" : "New Post"}
+                    </h1>
+                    <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        Draft
+                    </span>
                 </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8 max-w-3xl mx-auto w-full">
-                {isLoading ? (
-                    <div className="flex items-center justify-center h-full">
-                        <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 custom-scrollbar scroll-smooth">
+                {messages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto p-8 opacity-0 animate-in fade-in duration-700 slide-in-from-bottom-4 fill-mode-forwards" style={{ opacity: 1 }}>
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-50 to-white shadow-lg shadow-indigo-100 border border-indigo-50 flex items-center justify-center mb-6 rotate-3 transform transition-transform hover:rotate-0">
+                            <Sparkles className="w-7 h-7 text-indigo-600" />
+                        </div>
+                        <h2 className="text-2xl font-serif font-medium text-slate-900 mb-3 tracking-tight">
+                            What shall we write today?
+                        </h2>
+                        <p className="text-slate-500 text-base leading-relaxed mb-8">
+                            I can draft blog posts, brainstorm ideas, or outline articles. Just tell me your topic.
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                            {["Top 10 trends in AI", "Benefits of remote work", "How to verify a startup idea", "Will AI take over jobs?"].map((topic) => (
+                                <button
+                                    key={topic}
+                                    onClick={() => setInput(`Write a blog post about: ${topic}`)}
+                                    className="p-3 text-sm text-slate-600 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-indigo-200 hover:text-indigo-700 hover:shadow-md transition-all text-left"
+                                >
+                                    {topic}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 ) : (
-                    <>
-                        {messages.map((msg, i) => (
-                            <div key={i} className={cn("flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300", msg.role === "user" ? "justify-end" : "justify-start")}>
-                                {msg.role === "assistant" && (
-                                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 shrink-0">
-                                        <Sparkles className="w-4 h-4 text-indigo-400" />
-                                    </div>
-                                )}
-                                <div className={cn(
-                                    "px-4 py-3 rounded-2xl max-w-[85%] text-sm leading-relaxed",
-                                    msg.role === "user"
-                                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
-                                        : "bg-white/5 text-white/90 border border-white/10 glass"
-                                )}>
-                                    {msg.content}
+                    messages.map((msg, index) => (
+                        <div
+                            key={index}
+                            className={`flex gap-4 max-w-4xl mx-auto ${msg.role === "user" ? "justify-end" : "justify-start"
+                                }`}
+                        >
+                            {msg.role === "assistant" && (
+                                <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/10 mt-0.5">
+                                    <Sparkles className="w-3.5 h-3.5 text-white" />
                                 </div>
-                                {msg.role === "user" && (
-                                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/20 shrink-0">
-                                        <User className="w-4 h-4 text-white/70" />
-                                    </div>
+                            )}
+
+                            <div
+                                className={`rounded-2xl px-5 py-3.5 shadow-sm ring-1 ring-inset ${msg.role === "user"
+                                    ? "bg-slate-900 text-white ring-slate-900/10 rounded-br-none ml-12"
+                                    : "bg-white text-slate-700 ring-slate-200/50 rounded-bl-none mr-12"
+                                    }`}
+                            >
+                                {msg.role === "assistant" ? (
+                                    <div
+                                        className="prose prose-slate prose-sm max-w-none prose-headings:font-serif prose-headings:font-medium prose-p:leading-relaxed prose-a:text-indigo-600 hover:prose-a:text-indigo-500"
+                                        dangerouslySetInnerHTML={{ __html: msg.content }}
+                                    />
+                                ) : (
+                                    <p className="whitespace-pre-wrap leading-relaxed text-sm">{msg.content}</p>
                                 )}
                             </div>
-                        ))}
-                        <div ref={messagesEndRef} />
-                    </>
+
+                            {msg.role === "user" && (
+                                <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center shrink-0 mt-1">
+                                    <User className="w-4 h-4 text-slate-500" />
+                                </div>
+                            )}
+                        </div>
+                    ))
                 )}
+                {isLoading && (
+                    <div className="flex gap-4 max-w-4xl mx-auto animate-pulse">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0 mt-1">
+                            <Sparkles className="w-4 h-4 text-indigo-300" />
+                        </div>
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 w-2/3">
+                            <div className="h-4 bg-slate-100 rounded w-3/4 mb-4"></div>
+                            <div className="h-4 bg-slate-100 rounded w-1/2 mb-2"></div>
+                            <div className="h-4 bg-slate-100 rounded w-5/6"></div>
+                        </div>
+                    </div>
+                )}
+                <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
-            <div className="p-6 border-t border-white/5 bg-[#0a0a0c]">
-                <div className="max-w-3xl mx-auto relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500/50 to-purple-500/50 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition-opacity" />
-                    <div className="relative flex items-center bg-[#0d0d12] border border-white/10 rounded-2xl p-2 pl-4 shadow-2xl">
-                        <textarea
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder={chatId ? "Start writing..." : "Select or create a draft to start writing..."}
-                            disabled={!chatId || isSending}
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-white/90 placeholder:text-white/20 resize-none h-11 py-3 custom-scrollbar disabled:opacity-50"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSend();
-                                }
-                            }}
-                        />
-                        <Button
-                            onClick={handleSend}
-                            size="icon"
-                            disabled={!chatId || !input.trim() || isSending}
-                            className="rounded-xl h-10 w-10 bg-indigo-600 hover:bg-indigo-700 transition-all shrink-0 ml-2 shadow-lg shadow-indigo-500/20 disabled:opacity-50"
-                        >
-                            {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 text-white" />}
-                        </Button>
-                    </div>
-                    <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-white/20 uppercase tracking-widest font-bold">
-                        <span className="flex items-center gap-1.5"><Terminal className="w-3 h-3" /> Shift + Enter for new line</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1.5"><Sparkles className="w-3 h-3 text-indigo-400/50" /> Powered by AI</span>
-                    </div>
+            <div className="p-6 md:p-8 bg-white/90 backdrop-blur-xl border-t border-slate-100 relative z-20">
+                <div className="max-w-4xl mx-auto relative group">
+                    <textarea
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Describe your blog post idea..."
+                        className="min-h-[60px] max-h-[200px] w-full bg-slate-50 border-slate-200 focus:border-indigo-300 focus:ring focus:ring-indigo-100/50 rounded-2xl pr-14 pl-5 py-4 resize-none text-base shadow-sm transition-all placeholder:text-slate-400"
+                        disabled={isLoading}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
+                    />
+                    <Button
+                        onClick={handleSend}
+                        disabled={isLoading || !input.trim()}
+                        className={`absolute right-2 bottom-2 rounded-xl w-10 h-10 p-0 transition-all duration-300 shadow-sm ${input.trim() ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20" : "bg-slate-200 text-slate-400 hover:bg-slate-300"
+                            }`}
+                    >
+                        {isLoading ? (
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <ArrowUp className="w-5 h-5" />
+                        )}
+                    </Button>
+                </div>
+                <div className="text-center mt-3">
+                    <p className="text-[10px] text-slate-400 font-medium tracking-wide uppercase">AI-generated content can be inaccurate.</p>
                 </div>
             </div>
         </div>
     );
 }
+

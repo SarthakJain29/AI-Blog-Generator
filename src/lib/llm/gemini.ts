@@ -1,6 +1,6 @@
 import { ProviderError, sseData, type LLMProvider } from "./provider";
 
-export function createGemini(apiKey: string, model = "gemini-2.0-flash"): LLMProvider {
+export function createGemini(apiKey: string, model = "gemini-flash-latest"): LLMProvider {
   return {
     name: "gemini",
     async *stream(prompt, signal) {

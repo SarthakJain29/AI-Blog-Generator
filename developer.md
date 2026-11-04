@@ -78,6 +78,6 @@ No key → mock mode. Never commit `.env*` (ignored; only `.env.example` is trac
 
 ## 8. Progress
 
-**Done:** audit, research, migration to Next.js + TS, provider layer (Gemini/Groq/mock + fallback), streaming API with validation + rate limit, studio UI (brief, outline, editor/preview, rewrites, insights, export, drafts), landing page, tests (16), CI workflow, README, CHANGES, screenshots.
+**Done:** audit, research, migration to Next.js + TS, provider layer (Gemini/Groq/mock + fallback), streaming API with validation + rate limit, studio UI (brief, outline, editor/preview, rewrites, insights, export, drafts), landing page, tests (15), CI workflow, README, CHANGES, screenshots.
 **In progress:** –
 **Next:** live-verify Gemini/Groq with real keys; component tests (Playwright); cloud sync.

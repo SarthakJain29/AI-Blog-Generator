@@ -1,6 +1,6 @@
 import { ProviderError, sseData, type LLMProvider } from "./provider";
 
-export function createGroq(apiKey: string, model = "llama-3.3-70b-versatile"): LLMProvider {
+export function createGroq(apiKey: string, model = "openai/gpt-oss-120b"): LLMProvider {
   return {
     name: "groq",
     async *stream(prompt, signal) {

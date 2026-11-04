@@ -36,7 +36,7 @@ Takeaways applied: structured brief, streaming, outline-first, SEO feedback, inl
 6. **Fallback to mock on provider failure** (checked before the response is committed) so the demo never breaks.
 7. **Markdown rendering via react-markdown** (no raw HTML), fixing the XSS issue.
 8. npm instead of Bun (ubiquitous, works on all free hosts); TypeScript pinned to 5.9.
-9. Default Gemini model is the `gemini-flash-latest` alias because named versions get retired (`gemini-2.0-flash` already returned 404 during this work).
+9. Default models are aliases/currently-available ids (`gemini-flash-lite-latest`, `openai/gpt-oss-120b`) because named versions get retired; both are overridable via env.
 
 ## 4. Setup & run
 
@@ -53,9 +53,9 @@ npm test && npm run lint && npm run typecheck && npm run build
 | --- | --- | --- |
 | `LLM_PROVIDER` | `gemini` \| `groq` \| `mock`; empty = auto-detect | n/a |
 | `GEMINI_API_KEY` | Google Gemini | https://aistudio.google.com/apikey (free) |
-| `GEMINI_MODEL` | override model | default `gemini-flash-latest` |
+| `GEMINI_MODEL` | override model | default `gemini-flash-lite-latest` |
 | `GROQ_API_KEY` | Groq | https://console.groq.com/keys (free) |
-| `GROQ_MODEL` | override model | default `llama-3.3-70b-versatile` |
+| `GROQ_MODEL` | override model | default `openai/gpt-oss-120b` |
 
 No key → mock mode. Never commit `.env*` (ignored; only `.env.example` is tracked).
 
@@ -72,12 +72,11 @@ No key → mock mode. Never commit `.env*` (ignored; only `.env.example` is trac
 
 ## 7. Blockers & workarounds
 
-- **Live Gemini could not be verified end-to-end.** The sandbox's `GEMINI_API_KEY` returned 404 for `gemini-2.0-flash`/`gemini-2.5-*` and 503 for `gemini-flash-latest` from this environment. I did not loop on it; the failure path itself was exercised for real (API fell back to mock and the UI showed the "provider failed" notice). The Gemini/Groq request/stream parsing is unit-tested (SSE parser) but not live-tested. **You:** run with your own key locally, and if the model name is rejected set `GEMINI_MODEL`.
-- **Groq** has no key in this environment, so it is untested live.
+- **Live providers verified (updated after keys were refreshed).** Gemini (`gemini-flash-lite-latest`) and Groq (`openai/gpt-oss-120b`) both streamed real posts through `/api/generate` with `X-Fallback: 0`. Two default models had to change: Groq's `llama-3.3-70b-versatile` returned `model_not_found` for this key, and `gemini-flash-latest` returned 503 "high demand" (so the default is the lighter flash-lite alias). Earlier 404s on `gemini-2.0-flash`/`gemini-2.5-*` came from the old key. Model availability changes often: if one is rejected, set `GEMINI_MODEL` / `GROQ_MODEL`.
 - The research step used web search summaries; vibrant.design's CSS could not be fetched (markdown only), so the visual style is my interpretation of its mood, not a copy.
 
 ## 8. Progress
 
 **Done:** audit, research, migration to Next.js + TS, provider layer (Gemini/Groq/mock + fallback), streaming API with validation + rate limit, studio UI (brief, outline, editor/preview, rewrites, insights, export, drafts), landing page, tests (15), CI workflow, README, CHANGES, screenshots.
 **In progress:** –
-**Next:** live-verify Gemini/Groq with real keys; component tests (Playwright); cloud sync.
+**Next:** component tests (Playwright); cloud sync.
